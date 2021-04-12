@@ -1,0 +1,29 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+int q;
+long long x, t, m;
+
+int main() {
+	cin >> q;
+
+	while (q--) {
+		cin >> x >> t >> m;
+
+		// Convert to seconds
+		t *= 60;
+		m *= 60;
+
+		long long time_needed = min(x, t);
+		if (x < t) {
+			time_needed += (t - x) * 2;
+		}
+
+		if (time_needed <= m) {
+			cout<< "YES\n";
+		}
+		else {
+			cout << "NO\n";
+		}
+	}
+}

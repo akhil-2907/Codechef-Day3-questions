@@ -1,0 +1,141 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+#define ll long long 
+
+const int N= 500005;
+const ll m= 1e9+7;
+
+ll sub[N];
+vector<ll>v[N];
+ll fact[N];
+ll inv[N];
+ll dp[N];
+
+ll pow(ll a, ll n,ll m)
+{
+	ll p = 1;
+	while(n)
+	{
+		if(n&1)
+			p = 1ll*p*a%m;
+		a = 1ll*a*a%m;
+		n >>= 1;
+	}
+	return p;
+    
+}
+
+void dfs1(ll node, ll par)
+{
+    sub[node]=1;
+    for(auto child : v[node])
+    {
+        if(child!=par)
+        {
+            dfs1(child,node);
+            sub[node]+=sub[child];
+        }
+    }
+}
+int dfs(ll node, ll par, ll n)
+{
+    for(auto child : v[node])
+    {
+        if(child!=par&& 2*sub[child]>n)
+        {
+             return dfs(child,node,n);
+        }
+    }
+    return node;
+}
+
+int decompose(ll node, ll par)
+{
+    dfs1(node, par);
+    ll x = sub[node];
+
+    ll centroid = dfs(node, par,x);
+    return centroid;
+
+}
+
+ll solve(ll node, ll par)
+{
+    dp[node]=1;
+    sub[node]=1;
+
+    for(auto child : v[node])
+    {
+        if(child!=par)
+        {
+            solve(child,node);
+            dp[node]=1ll*dp[child]*dp[node]%m;
+            dp[node]=1ll*dp[node]*inv[sub[child]]%m;
+            sub[node]+=sub[child];
+        }
+    }
+    dp[node] = 1ll*dp[node]*fact[sub[node]-1]%m;
+	return dp[node];
+
+}
+ll second_ans(ll node)
+{
+	ll tt =0;
+	ll mx =0;
+	
+	for( auto child : v[node])
+	{
+		mx=max(mx,sub[child]);
+	}
+	for(auto child : v[node])
+	{
+		if(sub[child]==mx)
+		{
+			tt = max(tt,child);
+		}
+	}
+	return tt;
+}
+int main()
+{
+    fact[0]=1;
+    inv[0]=1;
+
+    for( ll i=1;i<=N;i++)
+    {
+        fact[i]=1ll*fact[i-1]*i%m;
+        inv[i]=pow(fact[i],m-2,m);
+    }
+    ll t;  cin>>t;
+    while(t--)
+    {
+        ll n,k; cin>>n>>k;
+
+        for(ll i=0;i<N;i++)
+        {
+            v[i].clear();
+            sub[i]=0;
+            dp[i]=0;
+        }
+
+        for( ll i=1;i<n;i++)
+        {
+            ll a,b;  cin>>a>>b;
+
+            v[a].push_back(b);
+            v[b].push_back(a);
+        }
+        ll x =decompose(1,-1);
+
+        ll ans= solve(x,-1);
+        ll res =second_ans(x);
+        ll mg = solve(res,-1);
+        
+       if(k==1) cout<<x<<" "<<ans<<endl;
+       else cout<<res<<" "<<mg<<endl;
+
+    
+    }
+
+}
